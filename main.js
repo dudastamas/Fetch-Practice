@@ -17,19 +17,23 @@ Promise.all([
   }, {});
 
   function cardRender() {
-    posts.forEach((post) => {
-      const user = users.find(u => u.id === post.userId);
-      const relatedComments = comments.filter(comment => comment.postId === post.id);
-      
-      // Továbbadjuk a user teljes post listáját a showDetails függvénynek
+    users.forEach((user) => {
+      // Csak az utolsó postot jelenítjük meg az adott felhasználótól
+      const userPosts = postsByUser[user.id];
+      const lastPost = userPosts[userPosts.length - 1]; // Az utolsó post
+
+      // Az adott posthoz kapcsolódó kommentek
+      const relatedComments = comments.filter(comment => comment.postId === lastPost.id);
+
+      // Kattintásra az összes postot jelenítjük meg az adott felhasználótól
       const cardDiv = `
       <div class="col-sm-3 mb-2 d-flex">
         <div class="card" style="width: 18rem">
           <div class="card-body d-flex flex-column justify-content-between">
-            <h5 class="card-title">Cím: ${post.title}</h5>
+            <h5 class="card-title">Cím: ${lastPost.title}</h5>
             <h6 class="card-subtitle mb-2 text-body-secondary">Szerző: ${user.name}</h6>
-            <p class="card-text">ID: ${post.id}</p>
-            <button class="btn btn-primary details" onclick='showDetails(${JSON.stringify({ post, user, relatedComments, relatedPosts: postsByUser[user.id] })})'>Részletek</button>
+            <p class="card-text">ID: ${lastPost.id}</p>
+            <button class="btn btn-primary details" onclick='showDetails(${JSON.stringify({ user, posts: userPosts, relatedComments })})'>Részletek</button>
           </div>
         </div>
       </div>
@@ -43,9 +47,8 @@ Promise.all([
 
 // showDetails függvény, ami az összes adatot megkapja
 function showDetails(data) {
-  const { post, user, relatedComments, relatedPosts } = data;
-  console.log("Post:", post);
-  console.log("User:", user.address.street);
-  console.log("Comments:", relatedComments);
-  console.log("User összes postja:", relatedPosts);
+  const { user, posts, relatedComments } = data;
+  console.log("User:", user);
+  console.log("Postok:", posts);  // Az összes post az adott userhez
+  console.log("Kommentek:", relatedComments);
 }
